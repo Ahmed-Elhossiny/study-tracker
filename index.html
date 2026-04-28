@@ -889,27 +889,37 @@ window.delImgLesson = (si,li,mid,idx) => {
 };
 
 // ─── AI ───
-window.aiImprove = async (si,li,mid,field) => {
+window.aiImprove = async (si, li, mid, field) => {
   const ta = document.getElementById(`f-${field}-${si}-${li}-${mid}`);
   const out = document.getElementById(`aiout-${field}-${si}-${li}-${mid}`);
   const text = ta?.value?.trim();
-  if(!text){ toast('اكتب محتوى الأول'); return; }
-  out.textContent=''; out.classList.add('show');
-  out.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
-  try{
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+  const apiKey = "AIzaSyCkv0FvRaq28RKXQcueAtjdvysucOkhG5s";
+
+  if (!text) { toast('اكتب محتوى الأول'); return; }
+  
+  out.textContent = ''; 
+  out.classList.add('show');
+  out.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1000,
-        system:'أنت مساعد تعليمي متخصص في الجرافيك ديزاين. حسّن ملاحظات الطالب: اجعلها أوضح وأكثر تفصيلاً ومنظمة. رد بالعربي فقط، مباشرة بالمحتوى المحسن بدون مقدمة.',
-        messages:[{role:'user',content:`القسم: ${SECTIONS[si].name}\nالفيديو: ${SECTIONS[si].lessons[li].name}\n${field==='summary'?'الملخص':'الملاحظات'}:\n${text}`}]
+        contents: [{
+          parts: [{ text: `أنت مساعد تعليمي متخصص في الجرافيك ديزاين. حسّن النص التالي ليصبح أكثر احترافية وتنظيماً باللغة العربية: ${text}` }]
+        }]
       })
     });
+
     const d = await res.json();
-    const improved = d.content?.[0]?.text||'';
+    const improved = d.candidates[0].content.parts[0].text;
     out._imp = improved;
     out.innerHTML = improved + `<div class="ai-actions"><button class="apply-btn" onclick="applyAI(${si},${li},'${mid}','${field}')">استخدم</button><button class="dismiss-btn" onclick="dismissAI('aiout-${field}-${si}-${li}-${mid}')">تجاهل</button></div>`;
-  }catch(e){ out.textContent='حصل خطأ'; setTimeout(()=>out.classList.remove('show'),2000); }
+  } catch (e) {
+    console.error(e);
+    out.textContent = 'حصل خطأ في الاتصال بـ Gemini';
+  }
 };
 
 window.applyAI = (si,li,mid,field) => {
@@ -921,28 +931,32 @@ window.applyAI = (si,li,mid,field) => {
 };
 window.dismissAI = (id) => { const el=document.getElementById(id); if(el){el.classList.remove('show');el.innerHTML='';} };
 
-window.suggestImgs = async (si,li,mid) => {
-  const sec=SECTIONS[si]; const les=sec.lessons[li];
-  const area=document.getElementById(`sugarea-${si}-${li}-${mid}`);
-  area.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
-  try{
-    const notes=gn(si,li,mid,'summary')||gn(si,li,mid,'notes')||les.name;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:200,
-        system:'رد فقط بـ JSON. الشكل: {"queries":["q1","q2","q3"]} كل query كلمة أو اثنتين بالإنجليزي للبحث في Unsplash عن صور تصميم توضيحية.',
-        messages:[{role:'user',content:`فيديو: ${les.name} في قسم: ${sec.name}. ملاحظات: ${notes}`}]
-      })
-    });
-    const d=await res.json();
-    let queries=['graphic design','advertising visual','design concept'];
-    try{queries=JSON.parse(d.content[0].text).queries||queries;}catch(e){}
-    area.innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:6px;">اضغط لإضافة صورة:</div><div class="sug-grid">'+
-      queries.map(q=>`<div class="sug-th" onclick="addSugImg(${si},${li},'${mid}','https://source.unsplash.com/200x200/?${encodeURIComponent(q)}')"><img src="https://source.unsplash.com/200x200/?${encodeURIComponent(q)}" loading="lazy"></div>`).join('')+'</div>';
-  }catch(e){ area.innerHTML=''; toast('حصل خطأ'); }
-};
+window.suggestImgs = async (si, li, mid) => {
+  const area = document.getElementById(`sugarea-${si}-${li}-${mid}`);
+  const text = document.getElementById(`f-summary-${si}-${li}-${mid}`)?.value || "Graphic Design";
+  
+  area.innerHTML = '<div style="font-size:12px; color:var(--accent); padding:10px;">جاري تجهيز وصف الصورة...</div>';
 
+  const prompt = `أعطني وصفاً دقيقاً باللغة الإنجليزية لصورة توضيحية تناسب هذا المحتوى التعليمي: (${text}). أريد الوصف ليكون موجهاً لمولد صور ذكي. رد بالوصف الإنجليزي فقط.`;
+  
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCkv0FvRaq28RKXQcueAtjdvysucOkhG5s`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+
+    const d = await res.json();
+    const description = d.candidates[0].content.parts[0].text;
+    area.innerHTML = `
+      <div style="background:var(--s3); padding:10px; border-radius:8px; margin-top:10px;">
+        <p style="font-size:11px; color:var(--text2); margin-bottom:5px;">انسخ هذا الوصف واطلبه من Gemini لتوليد الصورة:</p>
+        <code style="font-size:12px; color:var(--gold); display:block; user-select:all;">${description}</code>
+      </div>`;
+  } catch (e) {
+    area.innerHTML = '<div style="color:var(--red)">فشل في جلب الوصف</div>';
+  }
+};
 window.addSugImg = (si,li,mid,url) => {
   const imgs=getImgs(si,li,mid); imgs.push(url); setImgs(si,li,mid,imgs); renderImgsLesson(si,li,mid); toast('تمت الإضافة');
 };
