@@ -901,24 +901,36 @@ window.aiImprove = async (si, li, mid, field) => {
   out.classList.add('show');
   out.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
 
+  // الرابط الجديد مع البروكسي لتجاوز مشكلة الـ CORS
+  const proxyUrl = "https://corsproxy.io/?";
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const res = await fetch(proxyUrl + encodeURIComponent(apiUrl), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{
-          parts: [{ text: `أنت مساعد تعليمي متخصص في الجرافيك ديزاين. حسّن النص التالي ليصبح أكثر احترافية وتنظيماً باللغة العربية: ${text}` }]
+          parts: [{ text: `أنت مساعد تعليمي متخصص. حسّن النص التالي ليصبح أكثر احترافية وتنظيماً باللغة العربية، واجعله في شكل نقاط إذا كان ذلك مناسباً: ${text}` }]
         }]
       })
     });
 
     const d = await res.json();
+    
+    if (d.error) {
+        throw new Error(d.error.message);
+    }
+
     const improved = d.candidates[0].content.parts[0].text;
     out._imp = improved;
-    out.innerHTML = improved + `<div class="ai-actions"><button class="apply-btn" onclick="applyAI(${si},${li},'${mid}','${field}')">استخدم</button><button class="dismiss-btn" onclick="dismissAI('aiout-${field}-${si}-${li}-${mid}')">تجاهل</button></div>`;
+    out.innerHTML = improved + `<div class="ai-actions">
+        <button class="apply-btn" onclick="applyAI(${si},${li},'${mid}','${field}')">استخدم التعديل</button>
+        <button class="dismiss-btn" onclick="dismissAI('aiout-${field}-${si}-${li}-${mid}')">تجاهل</button>
+    </div>`;
   } catch (e) {
-    console.error(e);
-    out.textContent = 'حصل خطأ في الاتصال بـ Gemini';
+    console.error("Gemini Error:", e);
+    out.textContent = 'عذراً، فشل الاتصال. تأكد من اتصال الإنترنت أو صلاحية الـ Key.';
   }
 };
 
