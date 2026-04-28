@@ -883,6 +883,7 @@ window.uploadImg = (e,si,li,mid) => {
   reader.readAsDataURL(file);
 };
 
+  
 window.delImgLesson = (si,li,mid,idx) => {
   const imgs = getImgs(si,li,mid);
   imgs.splice(idx,1); setImgs(si,li,mid,imgs); renderImgsLesson(si,li,mid);
