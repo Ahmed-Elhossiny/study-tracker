@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام المذاكرة — Graphic Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --s1: #111118;
+  --s2: #18181f;
+  --s3: #22222c;
+  --s4: #2c2c38;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --border3: rgba(255,255,255,0.16);
+  --text: #eeeef5;
+  --text2: #8888aa;
+  --text3: #44445a;
+  --accent: #6c63ff;
+  --accent-glow: rgba(108,99,255,0.25);
+  --green: #3dd68c;
+  --green-bg: rgba(61,214,140,0.1);
+  --red: #ff6b6b;
+  --gold: #f5c842;
+  --r: 14px;
+  --r-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:3px;}
+
+/* ═══════════════════════════════ AUTH ═══════════════════════════════ */
+#auth-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(108,99,255,0.15) 0%, transparent 70%), var(--bg);
+}
+.auth-box{
+  width:100%;max-width:380px;
+  background:var(--s1);border:1px solid var(--border2);
+  border-radius:20px;padding:36px 32px;
+}
+.auth-logo{font-size:28px;font-weight:800;text-align:center;margin-bottom:6px;}
+.auth-logo span{color:var(--accent);}
+.auth-sub{text-align:center;color:var(--text2);font-size:13px;margin-bottom:32px;}
+.auth-tabs{display:flex;background:var(--s2);border-radius:var(--r-sm);padding:3px;margin-bottom:24px;}
+.auth-tab{flex:1;padding:7px;text-align:center;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text2);transition:all .2s;}
+.auth-tab.active{background:var(--s3);color:var(--text);}
+.field-wrap{margin-bottom:14px;}
+.field-wrap label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.field-wrap input{
+  width:100%;background:var(--s2);border:1px solid var(--border2);
+  border-radius:var(--r-sm);padding:11px 14px;
+  color:var(--text);font-size:14px;font-family:'Cairo',sans-serif;
+  transition:border-color .2s;
+}
+.field-wrap input:focus{outline:none;border-color:var(--accent);}
+.field-wrap input::placeholder{color:var(--text3);}
+.auth-btn{
+  width:100%;padding:13px;border-radius:var(--r-sm);
+  background:var(--accent);border:none;color:#fff;
+  font-size:15px;font-weight:700;font-family:'Cairo',sans-serif;
+  cursor:pointer;transition:opacity .2s;margin-top:4px;
+}
+.auth-btn:hover{opacity:.85;}
+.auth-err{font-size:12px;color:var(--red);text-align:center;margin-top:10px;min-height:18px;}
+
+/* ═══════════════════════════════ APP ═══════════════════════════════ */
+#app-screen{display:none;}
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  background:var(--s1);border-left:1px solid var(--border);
+  padding:20px 14px;position:sticky;top:0;height:100vh;
+  overflow-y:auto;display:flex;flex-direction:column;gap:24px;
+}
+.logo{font-size:20px;font-weight:800;padding:0 8px;}
+.logo span{color:var(--accent);}
+
+.s-section{display:flex;flex-direction:column;gap:6px;}
+.s-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;}
+
+.member-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;border-radius:10px;cursor:pointer;transition:background .15s;
+}
+.member-item:hover{background:var(--s2);}
+.m-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.m-info{flex:1;min-width:0;}
+.m-name{font-size:13px;font-weight:600;}
+.m-prog{font-size:11px;color:var(--text3);}
+.m-del{font-size:11px;color:var(--text3);opacity:0;padding:2px 6px;border-radius:4px;cursor:pointer;}
+.member-item:hover .m-del{opacity:1;}
+.m-del:hover{color:var(--red);}
+
+.add-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:10px;
+  border:1px dashed var(--border2);background:transparent;
+  color:var(--text3);font-size:13px;font-family:'Cairo',sans-serif;
+  cursor:pointer;width:100%;transition:all .15s;
+}
+.add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+.stat-mini{background:var(--s2);border-radius:10px;padding:10px 12px;}
+.stat-mini .lbl{font-size:11px;color:var(--text3);}
+.stat-mini .val{font-size:22px;font-weight:800;}
+
+.logout-btn{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  border-radius:10px;border:1px solid var(--border);background:transparent;
+  color:var(--text3);font-size:13px;font-family:'Cairo',sans-serif;
+  cursor:pointer;width:100%;transition:all .15s;margin-top:auto;
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* MAIN */
+.main{padding:28px 24px;overflow-y:auto;}
+.page-header{margin-bottom:24px;}
+.page-title{font-size:26px;font-weight:800;}
+.page-sub{font-size:13px;color:var(--text2);}
+
+/* Progress */
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:24px;}
+.prog-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;}
+.prog-card-name{font-size:13px;font-weight:700;margin-bottom:8px;}
+.prog-bar-bg{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-bottom:5px;}
+.prog-bar-fill{height:100%;border-radius:2px;transition:width .5s ease;}
+.prog-pct{font-size:11px;color:var(--text3);}
+
+/* Section cards */
+.sec-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
+.sec-card.open{border-color:var(--accent);}
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;}
+.sec-hdr:hover{background:rgba(255,255,255,0.02);}
+.sec-idx{font-size:11px;color:var(--text3);font-weight:700;min-width:22px;}
+.sec-name{flex:1;font-size:14px;font-weight:700;}
+.sec-dur{font-size:11px;color:var(--text3);background:var(--s2);padding:2px 8px;border-radius:20px;}
+.sec-badges{display:flex;gap:3px;}
+.sec-badge{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:1.5px solid var(--s4);color:var(--text3);transition:all .2s;}
+.sec-badge.done{border-width:2px;}
+.sec-chev{font-size:9px;color:var(--text3);transition:transform .2s;}
+.sec-card.open .sec-chev{transform:rotate(180deg);}
+.sec-body{display:none;border-top:1px solid var(--border);}
+.sec-card.open .sec-body{display:block;}
+
+/* Lessons */
+.lessons-wrap{padding:12px;}
+.lesson-card{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;margin-bottom:6px;overflow:hidden;
+}
+.lesson-hdr{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;}
+.lesson-hdr:hover{background:rgba(255,255,255,0.02);}
+.lesson-num{font-size:10px;color:var(--text3);font-weight:700;min-width:18px;}
+.lesson-name{flex:1;font-size:13px;font-weight:500;}
+.lesson-dur{font-size:10px;color:var(--text3);}
+.lesson-done-badge{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;border:1.5px solid var(--s4);color:var(--text3);
+  transition:all .2s;
+}
+.lesson-done-badge.done{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.lesson-chev{font-size:8px;color:var(--text3);transition:transform .2s;}
+.lesson-card.open .lesson-chev{transform:rotate(180deg);}
+.lesson-body{display:none;border-top:1px solid var(--border);padding:14px;}
+.lesson-card.open .lesson-body{display:block;}
+
+/* Member tabs in lesson */
+.member-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.mtab{
+  padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
+  border:1px solid var(--border2);cursor:pointer;transition:all .15s;
+  color:var(--text2);background:transparent;font-family:'Cairo',sans-serif;
+}
+.mtab.active{color:#fff;}
+
+.lesson-fields{display:flex;flex-direction:column;gap:10px;}
+.f-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;}
+.ai-tag{
+  font-size:10px;padding:2px 8px;border-radius:20px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text2);cursor:pointer;font-family:'Cairo',sans-serif;
+  transition:all .15s;display:flex;align-items:center;gap:3px;
+}
+.ai-tag:hover{border-color:var(--accent);color:var(--accent);}
+
+textarea{
+  width:100%;resize:vertical;min-height:72px;
+  font-size:13px;font-family:'Cairo',sans-serif;color:var(--text);
+  background:var(--s3);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:10px 12px;line-height:1.7;
+  transition:border-color .2s;
+}
+textarea.short{min-height:44px;}
+textarea:focus{outline:none;border-color:var(--accent);}
+textarea::placeholder{color:var(--text3);}
+
+.done-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.done-toggle{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:20px;
+  border:1px solid var(--border2);background:transparent;
+  color:var(--text2);font-size:12px;font-weight:600;
+  font-family:'Cairo',sans-serif;cursor:pointer;transition:all .2s;
+}
+.done-toggle:hover{border-color:var(--green);color:var(--green);}
+.done-toggle.active{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+
+/* AI output */
+.ai-out{
+  background:rgba(108,99,255,0.07);border:1px solid rgba(108,99,255,0.2);
+  border-radius:var(--r-sm);padding:12px 14px;
+  font-size:13px;line-height:1.7;white-space:pre-wrap;
+  display:none;margin-top:6px;
+}
+.ai-out.show{display:block;}
+.ai-actions{display:flex;gap:8px;margin-top:10px;}
+.apply-btn{
+  font-size:12px;padding:5px 14px;border-radius:20px;
+  border:1px solid var(--accent);background:transparent;
+  color:var(--accent);cursor:pointer;font-family:'Cairo',sans-serif;
+  transition:all .15s;
+}
+.apply-btn:hover{background:var(--accent);color:#fff;}
+.dismiss-btn{
+  font-size:12px;padding:5px 12px;border-radius:20px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text3);cursor:pointer;font-family:'Cairo',sans-serif;
+}
+
+/* Images */
+.imgs-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.img-th{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.img-th img{width:100%;height:100%;object-fit:cover;}
+.img-del{position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+.img-th:hover .img-del{opacity:1;}
+.upload-lbl{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;padding:4px 0;}
+.upload-lbl:hover{color:var(--text2);}
+.upload-lbl input{display:none;}
+.sug-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.sug-th{width:72px;height:72px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border-color .15s;background:var(--s3);}
+.sug-th:hover{border-color:var(--accent);}
+.sug-th img{width:100%;height:100%;object-fit:cover;}
+
+/* Loading dots */
+.dots{display:inline-flex;gap:3px;align-items:center;}
+.dots span{width:4px;height:4px;border-radius:50%;background:var(--accent);opacity:.3;animation:d 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes d{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:28px;width:340px;}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:20px;}
+.color-row{display:flex;gap:8px;margin-bottom:20px;}
+.color-dot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s;}
+.color-dot.sel{border-color:#fff;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+.btn-primary{font-size:13px;padding:8px 20px;border-radius:var(--r-sm);border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;}
+.btn-primary:hover{opacity:.85;}
+.btn-secondary{font-size:13px;padding:8px 16px;border-radius:var(--r-sm);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:'Cairo',sans-serif;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--border2);border-radius:30px;padding:10px 20px;font-size:13px;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+/* Loading screen */
+#loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}
+#loading-screen .logo{font-size:32px;font-weight:800;}
+#loading-screen .logo span{color:var(--accent);}
+
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{height:auto;position:static;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="logo">مذاكرة <span>Pro</span></div>
+  <div class="dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-logo">مذاكرة <span>Pro</span></div>
+    <div class="auth-sub">نظام متابعة كورس الجرافيك ديزاين</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchTab('login')">تسجيل الدخول</div>
+      <div class="auth-tab" onclick="switchTab('register')">حساب جديد</div>
+    </div>
+    <div class="field-wrap">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="auth-email" placeholder="example@email.com">
+    </div>
+    <div class="field-wrap">
+      <label>كلمة المرور</label>
+      <input type="password" id="auth-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuth()">
+    </div>
+    <div class="field-wrap" id="name-field" style="display:none;">
+      <label>اسمك</label>
+      <input type="text" id="auth-name" placeholder="اكتب اسمك">
+    </div>
+    <button class="auth-btn" onclick="doAuth()" id="auth-btn-text">دخول</button>
+    <div class="auth-err" id="auth-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="logo">مذاكرة <span>Pro</span></div>
+
+      <div class="s-section">
+        <div class="s-label">الأعضاء</div>
+        <div id="members-list"></div>
+        <button class="add-btn" onclick="openModal()"><span style="font-size:16px">+</span> إضافة شخص</button>
+      </div>
+
+      <div class="s-section">
+        <div class="s-label">إحصائيات</div>
+        <div class="stat-mini"><div class="lbl">إجمالي الأقسام</div><div class="val" style="color:var(--accent)">23</div></div>
+        <div class="stat-mini"><div class="lbl">إجمالي الفيديوهات</div><div class="val" style="color:var(--gold)">109</div></div>
+        <div class="stat-mini"><div class="lbl">مدة الكورس</div><div class="val" style="color:var(--green)">9س20د</div></div>
+      </div>
+
+      <button class="logout-btn" onclick="doLogout()">⎋ تسجيل الخروج</button>
+    </aside>
+
+    <main class="main">
+      <div class="page-header">
+        <div class="page-title">كورس الجرافيك ديزاين</div>
+        <div class="page-sub" id="user-greeting"></div>
+      </div>
+      <div class="prog-grid" id="prog-grid"></div>
+      <div id="sections-list"></div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">إضافة شخص جديد</div>
+    <div class="field-wrap"><label>الاسم</label><input type="text" id="new-name" placeholder="اكتب الاسم..." maxlength="20" onkeydown="if(event.key==='Enter')addMember()"></div>
+    <div class="field-wrap"><label>اختار لون</label><div class="color-row" id="color-row"></div></div>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal()">إلغاء</button>
+      <button class="btn-primary" onclick="addMember()">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2L7Wd3mgQhpQqO2j7gwIQMzwdpCnhu_8",
+  authDomain: "study-tracker-1990.firebaseapp.com",
+  projectId: "study-tracker-1990",
+  storageBucket: "study-tracker-1990.firebasestorage.app",
+  messagingSenderId: "766700122404",
+  appId: "1:766700122404:web:8509e528c7322ae6dec3b1"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+
+// ─── DATA ───
+const PALETTE = [
+  {fill:'#6c63ff',bg:'rgba(108,99,255,0.15)',text:'#a99fff'},
+  {fill:'#3dd68c',bg:'rgba(61,214,140,0.15)',text:'#3dd68c'},
+  {fill:'#ff6b6b',bg:'rgba(255,107,107,0.15)',text:'#ff9f9f'},
+  {fill:'#f5c842',bg:'rgba(245,200,66,0.15)',text:'#f5d870'},
+  {fill:'#7ec8ff',bg:'rgba(126,200,255,0.15)',text:'#9dd5ff'},
+  {fill:'#d67eff',bg:'rgba(214,126,255,0.15)',text:'#e4a0ff'},
+];
+
+const SECTIONS = [
+  {name:"Intro", dur:"6د", lessons:[{name:"Intro",dur:"06:06"}]},
+  {name:"Graphic Design Field", dur:"11د", lessons:[
+    {name:"Designer Vs Artist",dur:"02:23"},
+    {name:"Advertising In Marketing",dur:"04:33"},
+    {name:"Advertising Fields",dur:"04:20"},
+  ]},
+  {name:"Design Principles", dur:"26د", lessons:[
+    {name:"The Importance Of Design Principles",dur:"04:26"},
+    {name:"Design Elements",dur:"02:17"},
+    {name:"Color Theory",dur:"06:54"},
+    {name:"Design Principles",dur:"12:37"},
+  ]},
+  {name:"Composition", dur:"17د", lessons:[
+    {name:"Composition Introduction",dur:"02:17"},
+    {name:"Power Of Composition",dur:"10:15"},
+    {name:"Composition Terms",dur:"04:13"},
+  ]},
+  {name:"Perspective", dur:"11د", lessons:[{name:"Perspective",dur:"11:23"}]},
+  {name:"Photography", dur:"26د", lessons:[
+    {name:"Why It's Important To Know Photography",dur:"02:51"},
+    {name:"Types Of Camera",dur:"02:07"},
+    {name:"Exposure Triangle",dur:"05:22"},
+    {name:"Raw & Jpg",dur:"01:48"},
+    {name:"Lenses",dur:"04:51"},
+    {name:"Continuous And Flash Lighting",dur:"02:10"},
+    {name:"Lighting Equipments",dur:"05:37"},
+    {name:"Effects Of Lenses",dur:"01:45"},
+  ]},
+  {name:"Light", dur:"17د", lessons:[
+    {name:"Types Of Light",dur:"07:22"},
+    {name:"Light Kelvin",dur:"03:53"},
+    {name:"Rim & Rgb Light",dur:"02:37"},
+    {name:"Light Conditions",dur:"03:20"},
+  ]},
+  {name:"Shadow", dur:"16د", lessons:[
+    {name:"Properties Of Shadow",dur:"01:39"},
+    {name:"Shadow Rules",dur:"05:32"},
+    {name:"Campaigns By Shadow",dur:"02:24"},
+    {name:"Shadow Exercises",dur:"06:06"},
+  ]},
+  {name:"Typography", dur:"20د", lessons:[
+    {name:"Difference Between Typography & Typeface & Calligraphy",dur:"01:41"},
+    {name:"Typeface Styles",dur:"01:58"},
+    {name:"Choose The Suitable Font For Use",dur:"02:20"},
+    {name:"Basics Of Typography",dur:"03:12"},
+    {name:"Localization",dur:"06:48"},
+    {name:"Exercise",dur:"03:46"},
+  ]},
+  {name:"Briefing", dur:"17د", lessons:[
+    {name:"Types & Importance Of Brief",dur:"03:18"},
+    {name:"Brief Content",dur:"04:16"},
+    {name:"From Brief To Final Visuals",dur:"09:18"},
+  ]},
+  {name:"Art Direction", dur:"19د", lessons:[
+    {name:"Insight - Concept - Art Direction",dur:"06:45"},
+    {name:"Art Directions Styles",dur:"09:15"},
+    {name:"How To Choose An Art Direction",dur:"03:26"},
+  ]},
+  {name:"Campaign", dur:"18د", lessons:[
+    {name:"Elements Of Campaign",dur:"02:47"},
+    {name:"Types Of Campaign",dur:"01:13"},
+    {name:"Alpha Campaign",dur:"08:33"},
+    {name:"How To Create Campaign With Same Concept",dur:"05:58"},
+  ]},
+  {name:"Pitch", dur:"16د", lessons:[
+    {name:"Before Pitching",dur:"04:47"},
+    {name:"Pitch Content",dur:"02:30"},
+    {name:"Pitching Brief",dur:"03:27"},
+    {name:"Presentation File",dur:"05:42"},
+  ]},
+  {name:"Advertising Process", dur:"13د", lessons:[
+    {name:"Process",dur:"09:39"},
+    {name:"Video Ads",dur:"01:27"},
+    {name:"Photo Shoot Ads",dur:"01:40"},
+  ]},
+  {name:"Deal with Client", dur:"34د", lessons:[
+    {name:"Client Process",dur:"06:30"},
+    {name:"Importance Of Meeting",dur:"04:12"},
+    {name:"Client Toolkit",dur:"03:23"},
+    {name:"Price List",dur:"03:34"},
+    {name:"Brief Form",dur:"01:20"},
+    {name:"Customized Proposal",dur:"04:41"},
+    {name:"Invoice",dur:"02:08"},
+    {name:"Questions",dur:"08:17"},
+  ]},
+  {name:"Portfolio", dur:"18د", lessons:[
+    {name:"Types Of Portfolio",dur:"02:47"},
+    {name:"Different Cases",dur:"03:16"},
+    {name:"Importance Of Portfolio",dur:"06:03"},
+    {name:"Self Initiated Projects",dur:"02:03"},
+    {name:"Portfolio Content",dur:"03:30"},
+  ]},
+  {name:"Personal Branding", dur:"26د", lessons:[
+    {name:"Introduction",dur:"03:23"},
+    {name:"Importance Of Personal Branding",dur:"02:38"},
+    {name:"How To Build Your Personal Branding",dur:"04:01"},
+    {name:"Content Creation",dur:"05:12"},
+    {name:"Advices",dur:"02:13"},
+    {name:"Power Of Social Media",dur:"02:51"},
+    {name:"Power Of Content Creation",dur:"05:33"},
+  ]},
+  {name:"Campaign with Art Direction", dur:"70د", lessons:[
+    {name:"Briefing",dur:"07:00"},
+    {name:"Ideas",dur:"04:13"},
+    {name:"Drafting",dur:"04:16"},
+    {name:"Shooting Moodboard",dur:"11:09"},
+    {name:"Stocks",dur:"01:33"},
+    {name:"Photography",dur:"06:54"},
+    {name:"Retouching",dur:"05:31"},
+    {name:"First Kv",dur:"03:49"},
+    {name:"Second Kv",dur:"11:51"},
+    {name:"Third Kv",dur:"08:09"},
+    {name:"Recap",dur:"05:23"},
+  ]},
+  {name:"Matte Painting", dur:"50د", lessons:[
+    {name:"Composition",dur:"09:46"},
+    {name:"Color Balance",dur:"04:38"},
+    {name:"Light & Shadow 1",dur:"06:04"},
+    {name:"Light & Shadow 2",dur:"08:45"},
+    {name:"Light & Shadow 3",dur:"08:35"},
+    {name:"Light & Shadow 4",dur:"05:35"},
+    {name:"Color Grading",dur:"06:33"},
+  ]},
+  {name:"Master Visual", dur:"27د", lessons:[
+    {name:"Raw Photo",dur:"05:12"},
+    {name:"Composition",dur:"04:57"},
+    {name:"Light & Shadow",dur:"14:10"},
+    {name:"Color Grading",dur:"02:39"},
+  ]},
+  {name:"Concept Art", dur:"24د", lessons:[
+    {name:"Stocks",dur:"04:24"},
+    {name:"Composition",dur:"08:27"},
+    {name:"Details",dur:"02:36"},
+    {name:"Light & Shadow",dur:"06:25"},
+    {name:"Color Grading",dur:"02:23"},
+  ]},
+  {name:"Commercial", dur:"23د", lessons:[
+    {name:"Composition",dur:"11:34"},
+    {name:"Light & Shadow",dur:"05:53"},
+    {name:"Light & Shadow 2",dur:"03:58"},
+    {name:"Color Grading",dur:"01:35"},
+  ]},
+  {name:"Poster", dur:"30د", lessons:[
+    {name:"Workflow",dur:"05:44"},
+    {name:"Composition",dur:"05:51"},
+    {name:"Light & Shadow 1",dur:"07:26"},
+    {name:"Light & Shadow 2",dur:"07:20"},
+    {name:"Effects",dur:"01:36"},
+    {name:"Color Grading",dur:"02:31"},
+  ]},
+  {name:"Full Campaign With AI", dur:"33د", lessons:[
+    {name:"Introduction",dur:"03:32"},
+    {name:"Briefing",dur:"03:03"},
+    {name:"References",dur:"04:18"},
+    {name:"Ideas",dur:"04:58"},
+    {name:"Stocks",dur:"05:03"},
+    {name:"Execution",dur:"11:52"},
+  ]},
+];
+
+// ─── STATE ───
+let sharedData = { members: [{id:'ahmed',name:'أحمد',color:0},{id:'mohamed',name:'محمد',color:1}], notes:{} };
+let currentUser = null;
+let selColor = 2;
+let unsubscribe = null;
+let activeTab = {}; // lessonKey -> memberId
+
+// ─── FIREBASE HELPERS ───
+const docRef = () => doc(db, 'trackers', 'shared');
+
+async function loadData() {
+  const snap = await getDoc(docRef());
+  if (snap.exists()) sharedData = snap.data();
+  else await setDoc(docRef(), sharedData);
+}
+
+async function saveData() {
+  await setDoc(docRef(), sharedData);
+}
+
+function subscribeData() {
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onSnapshot(docRef(), snap => {
+    if (snap.exists()) {
+      sharedData = snap.data();
+      refreshUI();
+    }
+  });
+}
+
+// ─── AUTH ───
+let authMode = 'login';
+window.switchTab = (mode) => {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='register')));
+  document.getElementById('name-field').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-btn-text').textContent = mode === 'login' ? 'دخول' : 'إنشاء حساب';
+  document.getElementById('auth-err').textContent = '';
+};
+
+window.doAuth = async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.textContent = '';
+  if (!email || !pass) { errEl.textContent = 'من فضلك أدخل البريد وكلمة المرور'; return; }
+  try {
+    if (authMode === 'login') {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      const name = document.getElementById('auth-name').value.trim() || 'مستخدم';
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found': 'البريد غير موجود',
+      'auth/wrong-password': 'كلمة المرور غير صحيحة',
+      'auth/email-already-in-use': 'البريد مستخدم من قبل',
+      'auth/weak-password': 'كلمة المرور ضعيفة (6 أحرف على الأقل)',
+      'auth/invalid-email': 'البريد غير صحيح',
+      'auth/invalid-credential': 'بيانات الدخول غير صحيحة',
+    };
+    errEl.textContent = msgs[e.code] || 'حصل خطأ: ' + e.message;
+  }
+};
+
+window.doLogout = async () => { if(unsubscribe) unsubscribe(); await signOut(auth); };
+
+onAuthStateChanged(auth, async user => {
+  document.getElementById('loading-screen').style.display = 'none';
+  if (user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('user-greeting').textContent = 'أهلاً ' + (user.displayName || user.email);
+    await loadData();
+    subscribeData();
+    renderAll();
+  } else {
+    currentUser = null;
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app-screen').style.display = 'none';
+  }
+});
+
+// ─── GETTERS ───
+function gn(si,li,mid,f){ return sharedData.notes?.[`${si}_${li}`]?.[mid]?.[f] || ''; }
+function sn(si,li,mid,f,v){
+  const key = `${si}_${li}`;
+  if(!sharedData.notes) sharedData.notes={};
+  if(!sharedData.notes[key]) sharedData.notes[key]={};
+  if(!sharedData.notes[key][mid]) sharedData.notes[key][mid]={};
+  sharedData.notes[key][mid][f]=v;
+  saveData();
+}
+function isDone(si,li,mid){ return gn(si,li,mid,'done')==='1'; }
+function getImgs(si,li,mid){ return sharedData.notes?.[`${si}_${li}`]?.[mid]?.imgs || []; }
+function setImgs(si,li,mid,imgs){ sn(si,li,mid,'imgs',imgs); }
+
+// count done lessons per member
+function countDone(mid){ let c=0; SECTIONS.forEach((s,si)=>s.lessons.forEach((_,li)=>{ if(isDone(si,li,mid)) c++; })); return c; }
+const totalLessons = SECTIONS.reduce((a,s)=>a+s.lessons.length,0);
+
+// ─── RENDER ───
+function renderAll(){ renderSidebar(); renderProgress(); renderSections(); }
+function refreshUI(){ renderSidebar(); renderProgress(); updateAllBadges(); }
+
+function renderSidebar(){
+  const list = document.getElementById('members-list');
+  if(!list) return;
+  list.innerHTML = '';
+  (sharedData.members||[]).forEach(m => {
+    const c = PALETTE[m.color%PALETTE.length];
+    const done = countDone(m.id);
+    const div = document.createElement('div');
+    div.className = 'member-item';
+    div.innerHTML = `<div class="m-avatar" style="background:${c.bg};color:${c.text}">${m.name[0]}</div><div class="m-info"><div class="m-name">${m.name}</div><div class="m-prog">${done} / ${totalLessons} فيديو</div></div><span class="m-del" onclick="delMember('${m.id}',event)">✕</span>`;
+    list.appendChild(div);
+  });
+}
+
+function renderProgress(){
+  const grid = document.getElementById('prog-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  (sharedData.members||[]).forEach(m => {
+    const c = PALETTE[m.color%PALETTE.length];
+    const done = countDone(m.id);
+    const pct = Math.round(done/totalLessons*100);
+    grid.innerHTML += `<div class="prog-card"><div class="prog-card-name" style="color:${c.text}">${m.name}</div><div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%;background:${c.fill}"></div></div><div class="prog-pct">${done} من ${totalLessons} فيديو (${pct}%)</div></div>`;
+  });
+}
+
+function renderSections(){
+  const list = document.getElementById('sections-list');
+  if(!list) return;
+  list.innerHTML = '';
+  SECTIONS.forEach((sec,si) => {
+    const card = document.createElement('div');
+    card.className = 'sec-card';
+    card.id = 'sec-'+si;
+    const badges = (sharedData.members||[]).map(m => {
+      const allDone = sec.lessons.every((_,li)=>isDone(si,li,m.id));
+      const c = PALETTE[m.color%PALETTE.length];
+      return `<div class="sec-badge${allDone?' done':''}" id="sbadge-${si}-${m.id}" style="${allDone?`background:${c.bg};border-color:${c.fill};color:${c.text}`:''}">${m.name[0]}</div>`;
+    }).join('');
+    card.innerHTML = `<div class="sec-hdr" onclick="toggleSec(${si})"><span class="sec-idx">${String(si+1).padStart(2,'0')}</span><span class="sec-name">${sec.name}</span><span class="sec-dur">${sec.dur}</span><div class="sec-badges">${badges}</div><span class="sec-chev">▼</span></div><div class="sec-body"><div class="lessons-wrap" id="lessons-${si}"></div></div>`;
+    list.appendChild(card);
+  });
+}
+
+window.toggleSec = (si) => {
+  const card = document.getElementById('sec-'+si);
+  const wrap = document.getElementById('lessons-'+si);
+  const isOpen = card.classList.contains('open');
+  if(!isOpen && !wrap.dataset.built){ buildLessons(si,wrap); wrap.dataset.built='1'; }
+  card.classList.toggle('open',!isOpen);
+};
+
+function buildLessons(si, wrap){
+  wrap.innerHTML = '';
+  SECTIONS[si].lessons.forEach((les,li) => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    card.id = `lcard-${si}-${li}`;
+    const doneBadges = (sharedData.members||[]).map(m => {
+      const done = isDone(si,li,m.id);
+      const c = PALETTE[m.color%PALETTE.length];
+      return `<div class="lesson-done-badge${done?' done':''}" id="lbadge-${si}-${li}-${m.id}" style="${done?`background:${c.bg};border-color:${c.fill};color:${c.text}`:''}">${done?'✓':m.name[0]}</div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="lesson-hdr" onclick="toggleLesson(${si},${li})">
+        <span class="lesson-num">${li+1}</span>
+        <span class="lesson-name">${les.name}</span>
+        <span class="lesson-dur">${les.dur}</span>
+        <div style="display:flex;gap:3px;">${doneBadges}</div>
+        <span class="lesson-chev">▼</span>
+      </div>
+      <div class="lesson-body" id="lbody-${si}-${li}"></div>`;
+    wrap.appendChild(card);
+  });
+}
+
+window.toggleLesson = (si,li) => {
+  const card = document.getElementById(`lcard-${si}-${li}`);
+  const body = document.getElementById(`lbody-${si}-${li}`);
+  const isOpen = card.classList.contains('open');
+  if(!isOpen && !body.dataset.built){ buildLessonBody(si,li,body); body.dataset.built='1'; }
+  card.classList.toggle('open',!isOpen);
+};
+
+function buildLessonBody(si,li,body){
+  const members = sharedData.members||[];
+  if(!activeTab[`${si}_${li}`]) activeTab[`${si}_${li}`] = members[0]?.id;
+  const mid = activeTab[`${si}_${li}`];
+
+  const tabs = members.map(m => {
+    const c = PALETTE[m.color%PALETTE.length];
+    const active = m.id===mid;
+    return `<button class="mtab${active?' active':''}" id="mtab-${si}-${li}-${m.id}" onclick="switchMemberTab(${si},${li},'${m.id}')" style="${active?`background:${c.bg};border-color:${c.fill};color:${c.text}`:''}">${m.name}</button>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="member-tabs">${tabs}</div>
+    <div id="lfields-${si}-${li}"></div>`;
+
+  buildFields(si,li,mid,document.getElementById(`lfields-${si}-${li}`));
+}
+
+window.switchMemberTab = (si,li,mid) => {
+  activeTab[`${si}_${li}`] = mid;
+  const members = sharedData.members||[];
+  members.forEach(m => {
+    const tab = document.getElementById(`mtab-${si}-${li}-${m.id}`);
+    if(!tab) return;
+    const active = m.id===mid;
+    const c = PALETTE[m.color%PALETTE.length];
+    tab.className = 'mtab'+(active?' active':'');
+    tab.style.background = active?c.bg:'transparent';
+    tab.style.borderColor = active?c.fill:'var(--border2)';
+    tab.style.color = active?c.text:'var(--text2)';
+  });
+  const fieldsEl = document.getElementById(`lfields-${si}-${li}`);
+  if(fieldsEl) buildFields(si,li,mid,fieldsEl);
+};
+
+function buildFields(si,li,mid,container){
+  const done = isDone(si,li,mid);
+  container.innerHTML = `
+    <div class="lesson-fields">
+      <div class="field-group">
+        <div class="f-label"><span>ملخص الفيديو</span><button class="ai-tag" onclick="aiImprove(${si},${li},'${mid}','summary')">✦ حسّن بالـ AI</button></div>
+        <textarea id="f-summary-${si}-${li}-${mid}" placeholder="اكتب ملخصك للفيديو..." onchange="sn(${si},${li},'${mid}','summary',this.value)">${gn(si,li,mid,'summary')}</textarea>
+        <div class="ai-out" id="aiout-summary-${si}-${li}-${mid}"></div>
+      </div>
+      <div class="field-group">
+        <div class="f-label"><span>ملاحظات</span><button class="ai-tag" onclick="aiImprove(${si},${li},'${mid}','notes')">✦ حسّن بالـ AI</button></div>
+        <textarea class="short" id="f-notes-${si}-${li}-${mid}" placeholder="أي ملاحظات إضافية..." onchange="sn(${si},${li},'${mid}','notes',this.value)">${gn(si,li,mid,'notes')}</textarea>
+        <div class="ai-out" id="aiout-notes-${si}-${li}-${mid}"></div>
+      </div>
+      <div class="field-group">
+        <div class="f-label"><span>صور توضيحية</span><button class="ai-tag" onclick="suggestImgs(${si},${li},'${mid}')">✦ اقترح صور</button></div>
+        <div class="imgs-row" id="imgs-${si}-${li}-${mid}"></div>
+        <label class="upload-lbl">📎 ارفع صورة<input type="file" accept="image/*" onchange="uploadImg(event,${si},${li},'${mid}')"></label>
+        <div id="sugarea-${si}-${li}-${mid}"></div>
+      </div>
+      <div class="done-row">
+        <button class="done-toggle${done?' active':''}" id="dtoggle-${si}-${li}-${mid}" onclick="toggleDoneLesson(${si},${li},'${mid}')">
+          ${done?'✓ خلصت الفيديو':'علّم كخلصت'}
+        </button>
+      </div>
+    </div>`;
+  renderImgsLesson(si,li,mid);
+}
+
+// ─── DONE ───
+window.toggleDoneLesson = (si,li,mid) => {
+  const newVal = isDone(si,li,mid)?'':'1';
+  sn(si,li,mid,'done',newVal);
+  const btn = document.getElementById(`dtoggle-${si}-${li}-${mid}`);
+  if(btn){ btn.classList.toggle('active',newVal==='1'); btn.textContent=newVal==='1'?'✓ خلصت الفيديو':'علّم كخلصت'; }
+  updateLessonBadge(si,li,mid);
+  updateSecBadge(si,mid);
+  renderSidebar(); renderProgress();
+};
+
+function updateLessonBadge(si,li,mid){
+  const el = document.getElementById(`lbadge-${si}-${li}-${mid}`);
+  if(!el) return;
+  const done = isDone(si,li,mid);
+  const m = (sharedData.members||[]).find(x=>x.id===mid);
+  if(!m) return;
+  const c = PALETTE[m.color%PALETTE.length];
+  el.className = 'lesson-done-badge'+(done?' done':'');
+  el.style.background = done?c.bg:'transparent';
+  el.style.borderColor = done?c.fill:'var(--s4)';
+  el.style.color = done?c.text:'var(--text3)';
+  el.textContent = done?'✓':m.name[0];
+}
+
+function updateSecBadge(si,mid){
+  const el = document.getElementById(`sbadge-${si}-${mid}`);
+  if(!el) return;
+  const allDone = SECTIONS[si].lessons.every((_,li)=>isDone(si,li,mid));
+  const m = (sharedData.members||[]).find(x=>x.id===mid);
+  if(!m) return;
+  const c = PALETTE[m.color%PALETTE.length];
+  el.className = 'sec-badge'+(allDone?' done':'');
+  el.style.background = allDone?c.bg:'transparent';
+  el.style.borderColor = allDone?c.fill:'var(--s4)';
+  el.style.color = allDone?c.text:'var(--text3)';
+}
+
+function updateAllBadges(){
+  SECTIONS.forEach((sec,si)=>{
+    sec.lessons.forEach((_,li)=>{
+      (sharedData.members||[]).forEach(m=>{ updateLessonBadge(si,li,m.id); });
+    });
+    (sharedData.members||[]).forEach(m=>{ updateSecBadge(si,m.id); });
+  });
+}
+
+// ─── IMAGES ───
+function renderImgsLesson(si,li,mid){
+  const grid = document.getElementById(`imgs-${si}-${li}-${mid}`);
+  if(!grid) return;
+  const imgs = getImgs(si,li,mid);
+  grid.innerHTML = imgs.map((src,idx)=>`<div class="img-th"><img src="${src}" loading="lazy"><button class="img-del" onclick="delImgLesson(${si},${li},'${mid}',${idx})">✕</button></div>`).join('');
+}
+
+window.uploadImg = (e,si,li,mid) => {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const imgs = getImgs(si,li,mid);
+    imgs.push(ev.target.result);
+    setImgs(si,li,mid,imgs);
+    renderImgsLesson(si,li,mid);
+    toast('تمت إضافة الصورة');
+  };
+  reader.readAsDataURL(file);
+};
+
+window.delImgLesson = (si,li,mid,idx) => {
+  const imgs = getImgs(si,li,mid);
+  imgs.splice(idx,1); setImgs(si,li,mid,imgs); renderImgsLesson(si,li,mid);
+};
+
+// ─── AI ───
+window.aiImprove = async (si,li,mid,field) => {
+  const ta = document.getElementById(`f-${field}-${si}-${li}-${mid}`);
+  const out = document.getElementById(`aiout-${field}-${si}-${li}-${mid}`);
+  const text = ta?.value?.trim();
+  if(!text){ toast('اكتب محتوى الأول'); return; }
+  out.textContent=''; out.classList.add('show');
+  out.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        system:'أنت مساعد تعليمي متخصص في الجرافيك ديزاين. حسّن ملاحظات الطالب: اجعلها أوضح وأكثر تفصيلاً ومنظمة. رد بالعربي فقط، مباشرة بالمحتوى المحسن بدون مقدمة.',
+        messages:[{role:'user',content:`القسم: ${SECTIONS[si].name}\nالفيديو: ${SECTIONS[si].lessons[li].name}\n${field==='summary'?'الملخص':'الملاحظات'}:\n${text}`}]
+      })
+    });
+    const d = await res.json();
+    const improved = d.content?.[0]?.text||'';
+    out._imp = improved;
+    out.innerHTML = improved + `<div class="ai-actions"><button class="apply-btn" onclick="applyAI(${si},${li},'${mid}','${field}')">استخدم</button><button class="dismiss-btn" onclick="dismissAI('aiout-${field}-${si}-${li}-${mid}')">تجاهل</button></div>`;
+  }catch(e){ out.textContent='حصل خطأ'; setTimeout(()=>out.classList.remove('show'),2000); }
+};
+
+window.applyAI = (si,li,mid,field) => {
+  const out = document.getElementById(`aiout-${field}-${si}-${li}-${mid}`);
+  const ta = document.getElementById(`f-${field}-${si}-${li}-${mid}`);
+  if(out._imp && ta){ ta.value=out._imp; sn(si,li,mid,field,out._imp); }
+  out.classList.remove('show'); out.innerHTML='';
+  toast('تم التطبيق ✓');
+};
+window.dismissAI = (id) => { const el=document.getElementById(id); if(el){el.classList.remove('show');el.innerHTML='';} };
+
+window.suggestImgs = async (si,li,mid) => {
+  const sec=SECTIONS[si]; const les=sec.lessons[li];
+  const area=document.getElementById(`sugarea-${si}-${li}-${mid}`);
+  area.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+  try{
+    const notes=gn(si,li,mid,'summary')||gn(si,li,mid,'notes')||les.name;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:200,
+        system:'رد فقط بـ JSON. الشكل: {"queries":["q1","q2","q3"]} كل query كلمة أو اثنتين بالإنجليزي للبحث في Unsplash عن صور تصميم توضيحية.',
+        messages:[{role:'user',content:`فيديو: ${les.name} في قسم: ${sec.name}. ملاحظات: ${notes}`}]
+      })
+    });
+    const d=await res.json();
+    let queries=['graphic design','advertising visual','design concept'];
+    try{queries=JSON.parse(d.content[0].text).queries||queries;}catch(e){}
+    area.innerHTML='<div style="font-size:11px;color:var(--text3);margin-bottom:6px;">اضغط لإضافة صورة:</div><div class="sug-grid">'+
+      queries.map(q=>`<div class="sug-th" onclick="addSugImg(${si},${li},'${mid}','https://source.unsplash.com/200x200/?${encodeURIComponent(q)}')"><img src="https://source.unsplash.com/200x200/?${encodeURIComponent(q)}" loading="lazy"></div>`).join('')+'</div>';
+  }catch(e){ area.innerHTML=''; toast('حصل خطأ'); }
+};
+
+window.addSugImg = (si,li,mid,url) => {
+  const imgs=getImgs(si,li,mid); imgs.push(url); setImgs(si,li,mid,imgs); renderImgsLesson(si,li,mid); toast('تمت الإضافة');
+};
+
+// ─── MEMBERS ───
+window.openModal = () => {
+  selColor = [0,1,2,3,4,5].find(i=>!(sharedData.members||[]).map(m=>m.color).includes(i))??0;
+  document.getElementById('new-name').value='';
+  const row=document.getElementById('color-row');
+  row.innerHTML=PALETTE.map((c,i)=>`<div class="color-dot${i===selColor?' sel':''}" style="background:${c.fill}" onclick="pickColor(${i})"></div>`).join('');
+  document.getElementById('modal-overlay').classList.add('show');
+  setTimeout(()=>document.getElementById('new-name').focus(),100);
+};
+window.closeModal = () => document.getElementById('modal-overlay').classList.remove('show');
+window.pickColor = (i) => { selColor=i; document.querySelectorAll('.color-dot').forEach((d,idx)=>d.classList.toggle('sel',idx===i)); };
+
+window.addMember = async () => {
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){ toast('اكتب اسم'); return; }
+  if(!sharedData.members) sharedData.members=[];
+  sharedData.members.push({id:'m'+Date.now(),name,color:selColor});
+  await saveData(); closeModal();
+  renderAll(); toast('تمت إضافة '+name);
+};
+
+window.delMember = async (mid,e) => {
+  e.stopPropagation();
+  if((sharedData.members||[]).length<=1){ toast('لازم يفضل شخص واحد'); return; }
+  const m=(sharedData.members||[]).find(x=>x.id===mid);
+  if(!confirm('هتحذف '+m?.name+' وكل ملاحظاته؟')) return;
+  sharedData.members=(sharedData.members||[]).filter(x=>x.id!==mid);
+  if(sharedData.notes){ Object.keys(sharedData.notes).forEach(k=>{ if(sharedData.notes[k][mid]) delete sharedData.notes[k][mid]; }); }
+  await saveData(); renderAll(); toast('تم الحذف');
+};
+
+// ─── TOAST ───
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('modal-overlay')) closeModal(); });
+</script>
+</body>
+</html>
